@@ -1,0 +1,272 @@
+{
+  "project_info": {
+    "project_number": "759168799528",
+    "project_id": "quizapp-ca0cd",
+    "storage_bucket": "quizapp-ca0cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759168799528:android:a0919fa1019c652b25f61d",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnoQuXCSgotmfH6lkxF68gDmNLqu5gvTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1",
+  "quizzes": {
+    "quiz_001": {
+      "id": "quiz_001",
+      "title": "World History Basics",
+      "description": "Test your knowledge of world history with these fundamental questions",
+      "imageUrl": "",
+      "authorId": "user_001",
+      "authorName": "History Expert",
+      "timestamp": 1719607389464,
+      "collection": "History",
+      "theme": "Quizzo Default",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["history", "world", "basics"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "Who was the first president of the United States?",
+          "imageUrl": "",
+          "options": ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"],
+          "correctOptionIndex": 0
+        },
+        "1": {
+          "text": "In which year did World War II end?",
+          "imageUrl": "",
+          "options": ["1943", "1944", "1945", "1946"],
+          "correctOptionIndex": 2
+        },
+        "2": {
+          "text": "Which ancient civilization built the pyramids?",
+          "imageUrl": "",
+          "options": ["Romans", "Greeks", "Egyptians", "Mayans"],
+          "correctOptionIndex": 2
+        }
+      }
+    },
+    "quiz_002": {
+      "id": "quiz_002",
+      "title": "Math Challenge",
+      "description": "Put your math skills to the test with these challenging problems",
+      "imageUrl": "",
+      "authorId": "user_002",
+      "authorName": "Math Wizard",
+      "timestamp": 1719607399464,
+      "collection": "Math",
+      "theme": "Dark Theme",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["math", "challenge", "arithmetic"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "What is the value of π (pi) to two decimal places?",
+          "imageUrl": "",
+          "options": ["3.12", "3.14", "3.16", "3.18"],
+          "correctOptionIndex": 1
+        },
+        "1": {
+          "text": "If x² - 4x + 4 = 0, what is the value of x?",
+          "imageUrl": "",
+          "options": ["0", "1", "2", "3"],
+          "correctOptionIndex": 2
+        },
+        "2": {
+          "text": "What is 15% of 80?",
+          "imageUrl": "",
+          "options": ["8", "12", "15", "20"],
+          "correctOptionIndex": 1
+        }
+      }
+    },
+    "quiz_003": {
+      "id": "quiz_003",
+      "title": "Science Quiz",
+      "description": "Explore the wonders of science with these interesting questions",
+      "imageUrl": "",
+      "authorId": "user_001",
+      "authorName": "History Expert",
+      "timestamp": 1719607409464,
+      "collection": "Science",
+      "theme": "Quizzo Default",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["science", "physics", "chemistry"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "What is the chemical symbol for gold?",
+          "imageUrl": "",
+          "options": ["Go", "Gd", "Au", "Ag"],
+          "correctOptionIndex": 2
+        },
+        "1": {
+          "text": "Which planet is known as the Red Planet?",
+          "imageUrl": "",
+          "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+          "correctOptionIndex": 1
+        },
+        "2": {
+          "text": "What is the smallest unit of matter?",
+          "imageUrl": "",
+          "options": ["Atom", "Molecule", "Cell", "Electron"],
+          "correctOptionIndex": 0
+        }
+      }
+    },
+    "quiz_004": {
+      "id": "quiz_004",
+      "title": "Geography Trivia",
+      "description": "Test your knowledge of world geography",
+      "imageUrl": "",
+      "authorId": "user_003",
+      "authorName": "Travel Guru",
+      "timestamp": 1719607419464,
+      "collection": "Geography",
+      "theme": "Light Theme",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["geography", "travel", "world"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "What is the capital of France?",
+          "imageUrl": "",
+          "options": ["London", "Berlin", "Paris", "Rome"],
+          "correctOptionIndex": 2
+        },
+        "1": {
+          "text": "Which is the largest ocean on Earth?",
+          "imageUrl": "",
+          "options": ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+          "correctOptionIndex": 3
+        },
+        "2": {
+          "text": "On which continent is the Sahara Desert located?",
+          "imageUrl": "",
+          "options": ["Asia", "Africa", "Europe", "Australia"],
+          "correctOptionIndex": 1
+        }
+      }
+    },
+    "quiz_005": {
+      "id": "quiz_005",
+      "title": "Pop Culture Quiz",
+      "description": "How much do you know about modern entertainment?",
+      "imageUrl": "",
+      "authorId": "user_002",
+      "authorName": "Math Wizard",
+      "timestamp": 1719607429464,
+      "collection": "Entertainment",
+      "theme": "Colorful Theme",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["entertainment", "movies", "music"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "Which actor played Iron Man in the Marvel Cinematic Universe?",
+          "imageUrl": "",
+          "options": ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"],
+          "correctOptionIndex": 1
+        },
+        "1": {
+          "text": "Who painted the Mona Lisa?",
+          "imageUrl": "",
+          "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+          "correctOptionIndex": 2
+        },
+        "2": {
+          "text": "Which of these is NOT a social media platform?",
+          "imageUrl": "",
+          "options": ["Instagram", "Snapchat", "TikTok", "NetSpace"],
+          "correctOptionIndex": 3
+        }
+      }
+    }
+  },
+  "users": {
+    "user_001": {
+      "id": "user_001",
+      "name": "History Expert",
+      "email": "history@example.com",
+      "profileImage": "",
+      "bio": "History professor with a passion for teaching",
+      "createdQuizzes": {
+        "quiz_001": true,
+        "quiz_003": true
+      }
+    },
+    "user_002": {
+      "id": "user_002",
+      "name": "Math Wizard",
+      "email": "math@example.com",
+      "profileImage": "",
+      "bio": "Mathematics enthusiast and quiz creator",
+      "createdQuizzes": {
+        "quiz_002": true,
+        "quiz_005": true
+      }
+    },
+    "user_003": {
+      "id": "user_003",
+      "name": "Travel Guru",
+      "email": "travel@example.com",
+      "profileImage": "",
+      "bio": "World traveler and geography expert",
+      "createdQuizzes": {
+        "quiz_004": true
+      }
+    }
+  },
+  "categories": {
+    "history": {
+      "quiz_001": true
+    },
+    "math": {
+      "quiz_002": true
+    },
+    "science": {
+      "quiz_003": true
+    },
+    "geography": {
+      "quiz_004": true
+    },
+    "entertainment": {
+      "quiz_005": true
+    }
+  },
+  "featured": {
+    "discover": {
+      "quiz_001": true,
+      "quiz_003": true,
+      "quiz_005": true
+    },
+    "topPicks": {
+      "quiz_002": true,
+      "quiz_004": true
+    },
+    "trending": {
+      "quiz_003": true,
+      "quiz_005": true
+    }
+  }
+}

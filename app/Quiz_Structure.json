@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "759168799528",
+    "project_id": "quizapp-ca0cd",
+    "storage_bucket": "quizapp-ca0cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759168799528:android:a0919fa1019c652b25f61d",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnoQuXCSgotmfH6lkxF68gDmNLqu5gvTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

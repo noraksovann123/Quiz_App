@@ -1,0 +1,372 @@
+{
+  "users": {
+    "user1": {
+      "id": "user1",
+      "username": "quizmaster",
+      "fullName": "Quiz Master",
+      "email": "quizmaster@example.com",
+      "photoUrl": "https://example.com/photos/user1.jpg",
+      "dateOfBirth": "15/05/1995",
+      "phoneNumber": "+1234567890",
+      "country": "United States",
+      "age": "28",
+      "createdAt": 1720172054123,
+      "quizCount": 5,
+      "followersCount": 120,
+      "followingCount": 45,
+      "bio": "Quiz enthusiast and content creator"
+    },
+    "user2": {
+      "id": "user2",
+      "username": "quizwizard",
+      "fullName": "Quiz Wizard",
+      "email": "wizard@example.com",
+      "photoUrl": "https://example.com/photos/user2.jpg",
+      "dateOfBirth": "23/09/1990",
+      "phoneNumber": "+9876543210",
+      "country": "Canada",
+      "age": "33",
+      "createdAt": 1719567654123,
+      "quizCount": 8,
+      "followersCount": 85,
+      "followingCount": 32,
+      "bio": "Creating educational quizzes for everyone"
+    }
+  },
+  "categories": {
+    "category1": {
+      "id": "category1",
+      "name": "History",
+      "imageUrl": "https://example.com/images/history.jpg",
+      "color": "#FFC107",
+      "iconName": "ic_history",
+      "quizCount": 25
+    },
+    "category2": {
+      "id": "category2",
+      "name": "Science",
+      "imageUrl": "https://example.com/images/science.jpg",
+      "color": "#4CAF50",
+      "iconName": "ic_science",
+      "quizCount": 32
+    },
+    "category3": {
+      "id": "category3",
+      "name": "Geography",
+      "imageUrl": "https://example.com/images/geography.jpg",
+      "color": "#FF5722",
+      "iconName": "ic_geography",
+      "quizCount": 18
+    },
+    "category4": {
+      "id": "category4",
+      "name": "Mathematics",
+      "imageUrl": "https://example.com/images/math.jpg",
+      "color": "#2196F3",
+      "iconName": "ic_math",
+      "quizCount": 20
+    },
+    "category5": {
+      "id": "category5",
+      "name": "Literature",
+      "imageUrl": "https://example.com/images/literature.jpg",
+      "color": "#795548",
+      "iconName": "ic_literature",
+      "quizCount": 15
+    }
+  },
+  "quizzes": {
+    "quiz1": {
+      "id": "quiz1",
+      "title": "World History Trivia",
+      "description": "Test your knowledge of world history events from ancient to modern times.",
+      "imageUrl": "https://example.com/images/world_history.jpg",
+      "authorId": "user1",
+      "authorName": "Quiz Master",
+      "authorImageUrl": "https://example.com/photos/user1.jpg",
+      "timestamp": 1720093654123,
+      "collection": "History",
+      "theme": "classic",
+      "visibility": "public",
+      "questionVisibility": "reveal",
+      "keywords": ["history", "world", "events", "trivia"],
+      "questionCount": 10,
+      "playCount": 156,
+      "favoriteCount": 42,
+      "shareCount": 23
+    },
+    "quiz2": {
+      "id": "quiz2",
+      "title": "Amazing Space Facts",
+      "description": "Explore the universe with this space science quiz.",
+      "imageUrl": "https://example.com/images/space.jpg",
+      "authorId": "user2",
+      "authorName": "Quiz Wizard",
+      "authorImageUrl": "https://example.com/photos/user2.jpg",
+      "timestamp": 1720067454123,
+      "collection": "Science",
+      "theme": "dark",
+      "visibility": "public",
+      "questionVisibility": "reveal",
+      "keywords": ["space", "astronomy", "planets", "universe"],
+      "questionCount": 12,
+      "playCount": 204,
+      "favoriteCount": 67,
+      "shareCount": 31
+    },
+    "quiz3": {
+      "id": "quiz3",
+      "title": "Geography Challenge",
+      "description": "Test your knowledge of world geography, countries, and landmarks.",
+      "imageUrl": "https://example.com/images/geography.jpg",
+      "authorId": "user1",
+      "authorName": "Quiz Master",
+      "authorImageUrl": "https://example.com/photos/user1.jpg",
+      "timestamp": 1720032054123,
+      "collection": "Geography",
+      "theme": "travel",
+      "visibility": "public",
+      "questionVisibility": "reveal",
+      "keywords": ["geography", "countries", "capitals", "landmarks"],
+      "questionCount": 15,
+      "playCount": 189,
+      "favoriteCount": 51,
+      "shareCount": 28
+    }
+  },
+  "quiz_questions": {
+    "quiz1": {
+      "question1": {
+        "id": "question1",
+        "text": "Which year did World War II end?",
+        "imageUrl": "",
+        "options": {
+          "option1": {
+            "text": "1945",
+            "isCorrect": true
+          },
+          "option2": {
+            "text": "1939",
+            "isCorrect": false
+          },
+          "option3": {
+            "text": "1942",
+            "isCorrect": false
+          },
+          "option4": {
+            "text": "1950",
+            "isCorrect": false
+          }
+        }
+      },
+      "question2": {
+        "id": "question2",
+        "text": "Who was the first Emperor of Rome?",
+        "imageUrl": "https://example.com/images/roman_empire.jpg",
+        "options": {
+          "option1": {
+            "text": "Julius Caesar",
+            "isCorrect": false
+          },
+          "option2": {
+            "text": "Augustus",
+            "isCorrect": true
+          },
+          "option3": {
+            "text": "Nero",
+            "isCorrect": false
+          },
+          "option4": {
+            "text": "Constantine",
+            "isCorrect": false
+          }
+        }
+      }
+    },
+    "quiz2": {
+      "question1": {
+        "id": "question1",
+        "text": "Which planet is known as the Red Planet?",
+        "imageUrl": "",
+        "options": {
+          "option1": {
+            "text": "Venus",
+            "isCorrect": false
+          },
+          "option2": {
+            "text": "Mars",
+            "isCorrect": true
+          },
+          "option3": {
+            "text": "Jupiter",
+            "isCorrect": false
+          },
+          "option4": {
+            "text": "Saturn",
+            "isCorrect": false
+          }
+        }
+      },
+      "question2": {
+        "id": "question2",
+        "text": "What is the largest planet in our solar system?",
+        "imageUrl": "https://example.com/images/planets.jpg",
+        "options": {
+          "option1": {
+            "text": "Earth",
+            "isCorrect": false
+          },
+          "option2": {
+            "text": "Saturn",
+            "isCorrect": false
+          },
+          "option3": {
+            "text": "Jupiter",
+            "isCorrect": true
+          },
+          "option4": {
+            "text": "Neptune",
+            "isCorrect": false
+          }
+        }
+      }
+    }
+  },
+  "quiz_results": {
+    "result1": {
+      "id": "result1",
+      "quizId": "quiz1",
+      "userId": "user2",
+      "score": 8,
+      "totalQuestions": 10,
+      "timeTaken": 240,
+      "timestamp": 1720098754123,
+      "answers": {
+        "question1": {
+          "selectedOptionId": "option1",
+          "isCorrect": true,
+          "timeTaken": 15
+        },
+        "question2": {
+          "selectedOptionId": "option2",
+          "isCorrect": true,
+          "timeTaken": 25
+        }
+      }
+    },
+    "result2": {
+      "id": "result2",
+      "quizId": "quiz2",
+      "userId": "user1",
+      "score": 10,
+      "totalQuestions": 12,
+      "timeTaken": 320,
+      "timestamp": 1720084354123,
+      "answers": {
+        "question1": {
+          "selectedOptionId": "option2",
+          "isCorrect": true,
+          "timeTaken": 12
+        },
+        "question2": {
+          "selectedOptionId": "option3",
+          "isCorrect": true,
+          "timeTaken": 20
+        }
+      }
+    }
+  },
+  "user_relationships": {
+    "user1": {
+      "following": {
+        "user2": true
+      },
+      "followers": {
+        "user2": true
+      }
+    },
+    "user2": {
+      "following": {
+        "user1": true
+      },
+      "followers": {
+        "user1": true
+      }
+    }
+  },
+  "user_activity": {
+    "user1": {
+      "recent_quizzes": {
+        "quiz2": 1720084354123
+      },
+      "favorites": {
+        "quiz2": true
+      },
+      "created": {
+        "quiz1": 1720093654123,
+        "quiz3": 1720032054123
+      }
+    },
+    "user2": {
+      "recent_quizzes": {
+        "quiz1": 1720098754123,
+        "quiz3": 1720067454123
+      },
+      "favorites": {
+        "quiz1": true,
+        "quiz3": true
+      },
+      "created": {
+        "quiz2": 1720067454123
+      }
+    }
+  },
+  "featured": {
+    "trending_quizzes": {
+      "quiz1": {
+        "id": "quiz1",
+        "title": "World History Trivia",
+        "imageUrl": "https://example.com/images/world_history.jpg",
+        "authorName": "Quiz Master",
+        "playCount": 156,
+        "score": 98
+      },
+      "quiz2": {
+        "id": "quiz2",
+        "title": "Amazing Space Facts",
+        "imageUrl": "https://example.com/images/space.jpg",
+        "authorName": "Quiz Wizard",
+        "playCount": 204,
+        "score": 100
+      }
+    },
+    "popular_categories": {
+      "category1": {
+        "id": "category1",
+        "name": "History",
+        "imageUrl": "https://example.com/images/history.jpg",
+        "quizCount": 25
+      },
+      "category2": {
+        "id": "category2",
+        "name": "Science",
+        "imageUrl": "https://example.com/images/science.jpg",
+        "quizCount": 32
+      }
+    },
+    "popular_authors": {
+      "user1": {
+        "id": "user1",
+        "name": "Quiz Master",
+        "photoUrl": "https://example.com/photos/user1.jpg",
+        "quizCount": 5
+      },
+      "user2": {
+        "id": "user2",
+        "name": "Quiz Wizard",
+        "photoUrl": "https://example.com/photos/user2.jpg",
+        "quizCount": 8
+      }
+    }
+  }
+}
