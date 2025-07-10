@@ -8,58 +8,45 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-// Define an Author data class outside of HomeFragment for better reusability
-data class Author(
-    val id: String,
-    val name: String,
-    val photoUrl: String,
-    val quizCount: Int
-)
+
 
 class AuthorsAdapter(
-    private val authors: List<Author>,
-    private val onAuthorClick: (String) -> Unit
-) : RecyclerView.Adapter<AuthorsAdapter.AuthorViewHolder>() {
+    private var authors: List<Author>,
+    private val onAuthorClickListener: (String) -> Unit
+) : RecyclerView.Adapter<AuthorsAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AuthorViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_author, parent, false)
-        return AuthorViewHolder(view)
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val authorImage: ImageView = itemView.findViewById(R.id.authorImage)
+        val authorName: TextView = itemView.findViewById(R.id.authorName)
+        val quizCount: TextView = itemView.findViewById(R.id.quizCount)
     }
 
-    override fun onBindViewHolder(holder: AuthorViewHolder, position: Int) {
-        holder.bind(authors[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_author, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val author = authors[position]
+
+        holder.authorName.text = author.username
+        holder.quizCount.text = "${author.quizCount} quizzes"
+
+        if (author.photoUrl.isNotEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(author.photoUrl)
+                .placeholder(R.drawable.default_profile_image)
+                .circleCrop()
+                .into(holder.authorImage)
+        } else {
+            holder.authorImage.setImageResource(R.drawable.default_profile_image)
+        }
+
+        holder.itemView.setOnClickListener {
+            onAuthorClickListener(author.id)
+        }
     }
 
     override fun getItemCount(): Int = authors.size
-
-    inner class AuthorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val authorImage: ImageView = itemView.findViewById(R.id.authorImage)
-        private val authorName: TextView = itemView.findViewById(R.id.authorName)
-        private val quizCountText: TextView = itemView.findViewById(R.id.quizCount)
-
-        fun bind(author: Author) {
-            // Set name and quiz count
-            authorName.text = author.name
-            quizCountText.text = "${author.quizCount} ${if (author.quizCount == 1) "quiz" else "quizzes"}"
-
-            // Load author image with Glide
-            if (author.photoUrl.isNotEmpty()) {
-                Glide.with(itemView.context)
-                    .load(author.photoUrl)
-                    .placeholder(R.drawable.author_placeholder)
-                    .error(R.drawable.author_placeholder)
-                    .circleCrop()
-                    .into(authorImage)
-            } else {
-                // Set default image if no photo URL
-                authorImage.setImageResource(R.drawable.author_placeholder)
-            }
-
-            // Set click listener
-            itemView.setOnClickListener {
-                onAuthorClick(author.id)
-            }
-        }
-    }
 }

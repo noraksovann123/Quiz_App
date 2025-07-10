@@ -10,13 +10,20 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var loginFirebase: LoginFirebase
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var signInButton: Button
@@ -26,20 +33,51 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var togglePasswordVisibility: ImageView
     private lateinit var createAccountText: TextView
     private lateinit var googleSignInButton: Button
+    private lateinit var continueAsGuestButton: Button
     private lateinit var progressView: View
+    
+    // Firebase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var loginFirebase: LoginFirebase
 
     private var isPasswordVisible = false
+    
+    // Replace deprecated startActivityForResult with ActivityResultLauncher
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_form)
 
-        // Check if user is already logged in
-        checkLoggedInUser()
-
-        // Initialize Firebase Auth
+        // Initialize Firebase
+        auth = FirebaseAuth.getInstance()
         loginFirebase = LoginFirebase()
         loginFirebase.init(this, getString(R.string.web_client_id))
+
+        // Initialize the ActivityResultLauncher
+        googleSignInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                handleGoogleSignInResult(task)
+            } else {
+                // Google Sign In failed
+                Toast.makeText(this, "Google sign in failed or was canceled", Toast.LENGTH_SHORT).show()
+                showProgress(false)
+            }
+        }
+
+        // Check if user is already logged in
+        checkLoggedInUser()
+        
+        // Configure Google Sign-in
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Initialize views
         initializeViews()
@@ -49,15 +87,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun checkLoggedInUser() {
-        val sharedPrefs = getSharedPreferences("quizzo_prefs", MODE_PRIVATE)
-        val isLoggedIn = sharedPrefs.getBoolean("is_logged_in", false)
-        
-        if (isLoggedIn) {
-            // Check if Firebase session is still valid
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                navigateToMainActivity()
-            }
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            navigateToMainActivity()
         }
     }
 
@@ -71,6 +103,7 @@ class LoginActivity : AppCompatActivity() {
         togglePasswordVisibility = findViewById(R.id.eyeIcon)
         createAccountText = findViewById(R.id.createAccountText)
         googleSignInButton = findViewById(R.id.googleSignInButton)
+        continueAsGuestButton = findViewById(R.id.continueAsGuestButton)
         progressView = findViewById(R.id.progressView)
     }
 
@@ -80,7 +113,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         forgotPasswordText.setOnClickListener {
-            navigateToForgotPassword()
+            // Show message instead of navigating
+            Toast.makeText(this, "Forgot password feature coming soon!", Toast.LENGTH_SHORT).show()
         }
 
         backButton.setOnClickListener {
@@ -98,6 +132,10 @@ class LoginActivity : AppCompatActivity() {
         googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
+
+        continueAsGuestButton.setOnClickListener {
+            navigateToMainActivityAsGuest()
+        }
     }
 
     private fun login() {
@@ -113,18 +151,16 @@ class LoginActivity : AppCompatActivity() {
         showProgress(true)
 
         loginFirebase.signInWithEmail(email, password) { success, message ->
-            runOnUiThread {
-                showProgress(false)
-
-                if (success) {
-                    // Save login state if "Remember Me" is checked
-                    saveLoginState(email)
-                    
-                    // Navigate to MainActivity
-                    navigateToMainActivity()
-                } else {
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                }
+            showProgress(false)
+            
+            if (success) {
+                // Save login state if "Remember Me" is checked
+                saveLoginState(email)
+                
+                // Navigate to MainActivity
+                navigateToMainActivity()
+            } else {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -153,7 +189,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun saveLoginState(email: String) {
         if (rememberMeCheckbox.isChecked) {
-            val sharedPrefs = getSharedPreferences("quizzo_prefs", MODE_PRIVATE)
+            val sharedPrefs = getSharedPreferences("quiz_prefs", MODE_PRIVATE)
             with(sharedPrefs.edit()) {
                 putBoolean("is_logged_in", true)
                 putString("user_email", email)
@@ -164,12 +200,8 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInWithGoogle() {
         showProgress(true)
-        loginFirebase.signInWithGoogle(this)
-    }
-
-    private fun navigateToForgotPassword() {
-        val intent = Intent(this, ForgotPasswordActivity::class.java)
-        startActivity(intent)
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
     }
 
     private fun navigateToCreateAccount() {
@@ -184,16 +216,24 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun navigateToMainActivityAsGuest() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("isGuest", true)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
     private fun togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible
         
         if (isPasswordVisible) {
             // Show password
-            passwordEditText.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             togglePasswordVisibility.setImageResource(R.drawable.ic_eye_closed)
         } else {
             // Hide password
-            passwordEditText.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD
+            passwordEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             togglePasswordVisibility.setImageResource(R.drawable.ic_eye_open)
         }
         
@@ -205,27 +245,36 @@ class LoginActivity : AppCompatActivity() {
         progressView.visibility = if (show) View.VISIBLE else View.GONE
         signInButton.isEnabled = !show
         googleSignInButton.isEnabled = !show
+        continueAsGuestButton.isEnabled = !show
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        // Handle the Google Sign-In result
-        if (requestCode == LoginFirebase.RC_SIGN_IN) {
+    private fun handleGoogleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account = completedTask.getResult(ApiException::class.java)
+            // Google Sign In was successful, authenticate with Firebase
+            firebaseAuthWithGoogle(account)
+        } catch (e: ApiException) {
+            // Google Sign In failed
             showProgress(false)
-            loginFirebase.handleGoogleSignInResult(data) { success, message ->
-                if (success) {
+            Toast.makeText(this, "Google sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(account.idToken!!, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                showProgress(false)
+                
+                if (task.isSuccessful) {
                     // Save login state
-                    val account = GoogleSignIn.getLastSignedInAccount(this)
-                    account?.email?.let { email ->
-                        saveLoginState(email)
-                    }
-                    
+                    account.email?.let { saveLoginState(it) }
                     navigateToMainActivity()
                 } else {
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                    // If sign in fails, display a message to the user
+                    Toast.makeText(this, "Authentication failed: ${task.exception?.message}", 
+                        Toast.LENGTH_SHORT).show()
                 }
             }
-        }
     }
 }

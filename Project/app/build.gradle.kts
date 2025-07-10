@@ -14,10 +14,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        
-        // Enable AndroidX
-        android.useAndroidX = true
-        android.enableJetifier = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,13 +32,14 @@ android {
         viewBinding = true
     }
     
+    // Updated Java version from 8 to 11
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 

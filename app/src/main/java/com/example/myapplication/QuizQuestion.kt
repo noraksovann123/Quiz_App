@@ -1,10 +1,13 @@
 package com.example.myapplication
 
-import java.io.Serializable
+data class QuizOption(
+    val text: String = "",
+    val isCorrect: Boolean = false
+)
 
 data class QuizQuestion(
+    val id: String = "",
     val text: String = "",
     val imageUrl: String = "",
-    val options: List<String> = listOf(),
-    val correctOptionIndex: Int = 0
-) : Serializable
+    val options: Map<String, QuizOption> = mapOf()
+)

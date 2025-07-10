@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Quiz Mobile App</string>
-    
+
     <!-- Firebase/Google Sign-In -->
-    <string name="web_client_id">759168799528-[rest_of_client_id].apps.googleusercontent.com</string>
-    
+    <string name="web_client_id">759168799528-2l4ncta16lb5cgklfs9q1qsnakks4gq4.apps.googleusercontent.com</string>
+
     <!-- Arrays -->
-    <string-array name="countries_array">
+    <string-array name="countries">
         <item>United States</item>
         <item>Canada</item>
         <item>Mexico</item>
@@ -18,5 +18,59 @@
         <item>Brazil</item>
         <item>India</item>
         <item>South Korea</item>
+        <item>Cambodia</item>
     </string-array>
+    
+    <string-array name="quiz_categories">
+        <item>General Knowledge</item>
+        <item>Science</item>
+        <item>History</item>
+        <item>Geography</item>
+        <item>Entertainment</item>
+        <item>Sports</item>
+        <item>Technology</item>
+        <item>Art &amp; Literature</item>
+        <item>Music</item>
+        <item>Movies</item>
+    </string-array>
+
+    <!-- Auth Screens -->
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="countries">Countries</string>
+    <string name="following">Following</string>
+    <string name="followers">Followers</string>
+    <string name="no_items_found">No %1$s found.</string>
+    <string name="error_loading_list">Error loading list.</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="email_hint">Enter your email</string>
+    <string name="password">Password</string>
+    <string name="password_hint">Enter your password</string>
+    <string name="remember_me">Remember me</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="or_sign_in_with">OR SIGN IN WITH</string>
+    <string name="sign_in_with_google">Sign In with Google</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="create_account">Create account</string>
+    <string name="follow">Follow</string>
+    <string name="username_format">\@%s</string>
+    <string name="no_friends_found">No friends found</string>
+    <string name="signup">Sign Up</string>
+    
+    <!-- CreateQuizActivity -->
+    <string name="add_question">Add Question</string>
+    <string name="edit_question">Edit Question</string>
+    <string name="image_selected">Image selected</string>
+    <string name="question_required">Question is required</string>
+    <string name="at_least_two_options">At least first two options are required</string>
+    <string name="select_correct_answer">Please select a correct answer</string>
+    <string name="saving">Saving…</string>
+    <string name="save">Save</string>
+    <string name="failed_upload">Failed to upload image: %1$s</string>
+    
+    <!-- CategoryQuizzesActivity -->
+    <string name="failed_load_quizzes">Failed to load quizzes: %1$s</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

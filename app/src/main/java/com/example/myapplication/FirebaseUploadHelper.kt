@@ -1,24 +1,28 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
+import android.widget.Toast
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.example.myapplication.models.Quiz
+import com.example.myapplication.QuizQuestion
+import kotlinx.coroutines.tasks.await
 import java.util.*
 
 class FirebaseUploadHelper {
     companion object {
         private const val TAG = "FirebaseUploadHelper"
-        private val database = Firebase.database.reference
-        private val storage = Firebase.storage.reference
+        private val database: DatabaseReference = Firebase.database.reference
+        private val storage: StorageReference = FirebaseStorage.getInstance().reference
         
         /**
          * Uploads a quiz with its questions to Firebase
-         * 
-         * @param quiz The quiz metadata
-         * @param questions List of questions for the quiz
-         * @param callback Called with (success, quizId) when complete
          */
         fun uploadQuiz(quiz: Quiz, questions: List<QuizQuestion>, callback: (Boolean, String?) -> Unit) {
             // Generate a unique ID if not provided
@@ -37,6 +41,7 @@ class FirebaseUploadHelper {
                 "authorName" to quizWithId.authorName,
                 "timestamp" to quizWithId.timestamp,
                 "collection" to quizWithId.collection,
+                "category" to quizWithId.category,
                 "theme" to quizWithId.theme,
                 "visibility" to quizWithId.visibility,
                 "questionVisibility" to quizWithId.questionVisibility,
@@ -97,8 +102,7 @@ class FirebaseUploadHelper {
                 val questionData = mapOf(
                     "text" to question.text,
                     "imageUrl" to question.imageUrl,
-                    "options" to question.options,
-                    "correctOptionIndex" to question.correctOptionIndex
+                    "options" to question.options
                 )
                 
                 questionRef.child(index.toString()).setValue(questionData)
@@ -163,103 +167,43 @@ class FirebaseUploadHelper {
                     callback(false)
                 }
         }
+    }
+    
+    private val storage = FirebaseStorage.getInstance()
+    
+    fun uploadImage(
+        context: Context,
+        imageUri: Uri,
+        folderPath: String,
+        onSuccess: (String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val fileExtension = getFileExtension(context, imageUri)
+        val fileName = "${UUID.randomUUID()}.$fileExtension"
+        val fileRef = storage.reference.child("$folderPath/$fileName")
         
-        /**
-         * Uploads an image to Firebase Storage and returns the download URL
-         * 
-         * @param uri The local URI of the image
-         * @param path The storage path (e.g., "quiz_covers" or "quiz_questions")
-         * @param callback Called with the download URL or null if upload failed
-         */
-        fun uploadImage(uri: Uri, path: String, callback: (String?) -> Unit) {
-            val filename = UUID.randomUUID().toString()
-            val fileRef = storage.child("$path/$filename.jpg")
-            
-            fileRef.putFile(uri)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Image uploaded successfully")
-                    fileRef.downloadUrl
-                        .addOnSuccessListener { downloadUri ->
-                            Log.d(TAG, "Download URL: $downloadUri")
-                            callback(downloadUri.toString())
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e(TAG, "Failed to get download URL", e)
-                            callback(null)
-                        }
+        fileRef.putFile(imageUri)
+            .addOnSuccessListener {
+                fileRef.downloadUrl.addOnSuccessListener { uri ->
+                    onSuccess(uri.toString())
                 }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to upload image", e)
-                    callback(null)
-                }
-        }
-        
-        /**
-         * Updates an existing quiz
-         */
-        fun updateQuiz(quiz: Quiz, callback: (Boolean) -> Unit) {
-            if (quiz.id.isEmpty()) {
-                Log.e(TAG, "Cannot update quiz with empty ID")
-                callback(false)
-                return
             }
-            
-            val quizValues = mapOf(
-                "title" to quiz.title,
-                "description" to quiz.description,
-                "imageUrl" to quiz.imageUrl,
-                "collection" to quiz.collection,
-                "theme" to quiz.theme,
-                "visibility" to quiz.visibility,
-                "questionVisibility" to quiz.questionVisibility,
-                "keywords" to quiz.keywords
-            )
-            
-            database.child("quizzes").child(quiz.id).updateChildren(quizValues)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Quiz updated successfully")
-                    callback(true)
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to update quiz", e)
-                    callback(false)
-                }
-        }
-        
-        /**
-         * Deletes a quiz and its references
-         */
-        fun deleteQuiz(quizId: String, category: String, authorId: String, callback: (Boolean) -> Unit) {
-            // Create a map of all updates to perform
-            val updates = hashMapOf<String, Any?>()
-            
-            // Remove from quizzes node
-            updates["quizzes/$quizId"] = null
-            
-            // Remove from category
-            val normalizedCategory = category.lowercase().replace(" ", "_")
-            updates["categories/$normalizedCategory/$quizId"] = null
-            
-            // Remove from featured sections
-            updates["featured/discover/$quizId"] = null
-            updates["featured/trending/$quizId"] = null
-            updates["featured/topPicks/$quizId"] = null
-            
-            // Remove from user's created quizzes
-            if (authorId.isNotEmpty()) {
-                updates["users/$authorId/createdQuizzes/$quizId"] = null
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                onFailure(e)
             }
-            
-            // Perform all deletions in a single update
-            database.updateChildren(updates)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Quiz and all references deleted successfully")
-                    callback(true)
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to delete quiz", e)
-                    callback(false)
-                }
-        }
+    }
+    
+    private fun getFileExtension(context: Context, uri: Uri): String {
+        val contentResolver = context.contentResolver
+        val mimeTypeMap = MimeTypeMap.getSingleton()
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ?: "jpg"
+    }
+    
+    // Use this function when calling from another suspend function
+    suspend fun uploadImageAndGetUrl(uri: Uri, folderPath: String): String {
+        val fileRef = storage.reference.child("$folderPath/${UUID.randomUUID()}")
+        fileRef.putFile(uri).await()
+        return fileRef.downloadUrl.await().toString()
     }
 }

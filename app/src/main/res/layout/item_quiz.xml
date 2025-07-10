@@ -1,48 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="160dp"
-    android:layout_height="200dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/quiz_image"
+        <!-- Quiz Image -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="160dp">
 
+            <ImageView
+                android:id="@+id/quizImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/quiz_placeholder" />
+
+            <ImageView
+                android:id="@+id/favoriteButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/circular_background"
+                android:padding="4dp"
+                android:src="@drawable/ic_favorite_border" />
+        </FrameLayout>
+
+        <!-- Quiz Title -->
         <TextView
-            android:id="@+id/quiz_title"
+            android:id="@+id/quizTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
             android:maxLines="2"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp" />
+            android:text="Quiz Title"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
+        <!-- Author Name -->
         <TextView
-            android:id="@+id/quiz_author"
+            android:id="@+id/authorName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:text="by Author"
+            android:textColor="#757575"
+            android:textSize="14sp" />
+
+        <!-- Stats Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal">
+
+            <!-- Question Count -->
+            <TextView
+                android:id="@+id/questionCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="10 questions"
+                android:textColor="#757575"
+                android:textSize="12sp" />
+
+            <!-- Play Count -->
+            <TextView
+                android:id="@+id/playCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.2K plays"
+                android:textColor="#757575"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

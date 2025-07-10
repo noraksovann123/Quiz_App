@@ -8,6 +8,6 @@
     </style>
 
 
-    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
+    <style name="Theme.MyApplication.New" parent="Base.Theme.MyApplication" />
 
 </resources>

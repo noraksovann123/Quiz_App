@@ -1,0 +1,143 @@
+{
+  "quizzes": {
+    "quiz_001": {
+      "id": "quiz_001",
+      "title": "World History Basics",
+      "description": "Test your knowledge of world history with these fundamental questions",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_covers%2Fhistory_cover.jpg?alt=media",
+      "authorId": "user_001",
+      "authorName": "History Expert",
+      "timestamp": 1719607389464,
+      "collection": "History",
+      "theme": "Quizzo Default",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["history", "world", "basics"],
+      "questionCount": 3,
+      "questions": {
+        "0": {
+          "text": "Who was the first president of the United States?",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_questions%2Fquiz_001%2Fwashington.jpg?alt=media",
+          "options": ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"],
+          "correctOptionIndex": 0
+        },
+        "1": {
+          "text": "In which year did World War II end?",
+          "imageUrl": "",
+          "options": ["1943", "1944", "1945", "1946"],
+          "correctOptionIndex": 2
+        },
+        "2": {
+          "text": "Which ancient civilization built the pyramids?",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_questions%2Fquiz_001%2Fpyramids.jpg?alt=media",
+          "options": ["Romans", "Greeks", "Egyptians", "Mayans"],
+          "correctOptionIndex": 2
+        }
+      }
+    },
+    "quiz_002": {
+      "id": "quiz_002",
+      "title": "Math Challenge",
+      "description": "Put your math skills to the test with these challenging problems",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_covers%2Fmath_cover.jpg?alt=media",
+      "authorId": "user_002",
+      "authorName": "Math Wizard",
+      "timestamp": 1719607399464,
+      "collection": "Math",
+      "theme": "Dark Theme",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["math", "challenge", "arithmetic"],
+      "questionCount": 2,
+      "questions": {
+        "0": {
+          "text": "What is the value of π (pi) to two decimal places?",
+          "imageUrl": "",
+          "options": ["3.12", "3.14", "3.16", "3.18"],
+          "correctOptionIndex": 1
+        },
+        "1": {
+          "text": "If x² - 4x + 4 = 0, what is the value of x?",
+          "imageUrl": "",
+          "options": ["0", "1", "2", "3"],
+          "correctOptionIndex": 2
+        }
+      }
+    },
+    "quiz_003": {
+      "id": "quiz_003",
+      "title": "Science Quiz",
+      "description": "Explore the wonders of science with these interesting questions",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_covers%2Fscience_cover.jpg?alt=media",
+      "authorId": "user_001",
+      "authorName": "History Expert",
+      "timestamp": 1719607409464,
+      "collection": "Science",
+      "theme": "Quizzo Default",
+      "visibility": "Everyone",
+      "questionVisibility": "Everyone",
+      "keywords": ["science", "physics", "chemistry"],
+      "questionCount": 2,
+      "questions": {
+        "0": {
+          "text": "What is the chemical symbol for gold?",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_questions%2Fquiz_003%2Fgold.jpg?alt=media",
+          "options": ["Go", "Gd", "Au", "Ag"],
+          "correctOptionIndex": 2
+        },
+        "1": {
+          "text": "Which planet is known as the Red Planet?",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/quiz_questions%2Fquiz_003%2Fmars.jpg?alt=media",
+          "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+          "correctOptionIndex": 1
+        }
+      }
+    }
+  },
+  "users": {
+    "user_001": {
+      "id": "user_001",
+      "name": "History Expert",
+      "email": "history@example.com",
+      "profileImage": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/profile_images%2Fuser_001.jpg?alt=media",
+      "bio": "History professor with a passion for teaching",
+      "createdQuizzes": {
+        "quiz_001": true,
+        "quiz_003": true
+      }
+    },
+    "user_002": {
+      "id": "user_002",
+      "name": "Math Wizard",
+      "email": "math@example.com",
+      "profileImage": "https://firebasestorage.googleapis.com/v0/b/quizapp-ca0cd.appspot.com/o/profile_images%2Fuser_002.jpg?alt=media",
+      "bio": "Mathematics enthusiast and quiz creator",
+      "createdQuizzes": {
+        "quiz_002": true
+      }
+    }
+  },
+  "categories": {
+    "history": {
+      "quiz_001": true
+    },
+    "math": {
+      "quiz_002": true
+    },
+    "science": {
+      "quiz_003": true
+    }
+  },
+  "featured": {
+    "discover": {
+      "quiz_001": true,
+      "quiz_003": true
+    },
+    "topPicks": {
+      "quiz_002": true
+    },
+    "trending": {
+      "quiz_003": true
+    }
+  }
+}

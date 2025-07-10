@@ -54,6 +54,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    // Google Sign-In (fixed syntax for Kotlin DSL)
+    implementation("com.google.android.gms:play-services-auth:20.6.0")
+
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")

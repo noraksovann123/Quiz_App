@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +15,7 @@ import java.text.SimpleDateFormat
 
 class CreateAccountActivity : AppCompatActivity() {
 
-    // Step 1 Views
-    private lateinit var backArrow: ImageView
+    // Page 1 Views
     private lateinit var fullNameInput: EditText
     private lateinit var dobInput: EditText
     private lateinit var phoneInput: EditText
@@ -25,41 +23,62 @@ class CreateAccountActivity : AppCompatActivity() {
     private lateinit var ageSpinner: Spinner
     private lateinit var continueButton: Button
     private lateinit var calendarIcon: ImageView
-    private lateinit var progressView: View
+    private lateinit var backArrow: ImageView
+    private lateinit var progressView: FrameLayout
 
-    // Step 2 Views
+    // Page 2 Views
     private lateinit var usernameInput: EditText
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
-    private lateinit var eyeIconPassword: ImageView
-    private lateinit var eyeIconConfirm: ImageView
     private lateinit var rememberMeCheckbox: CheckBox
     private lateinit var signUpButton: Button
-    private lateinit var googleButton: Button
+    private lateinit var eyeIconPassword: ImageView
+    private lateinit var eyeIconConfirm: ImageView
 
-    // Variables
-    private var currentStep = 1
+    // Firebase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
     private lateinit var loginFirebase: LoginFirebase
+
+    private var currentPage = 1
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
-    private val calendar = Calendar.getInstance()
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // User data storage
+    private var userData = mutableMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.create_account_page_1)
-
+        
         // Initialize Firebase
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance()
         loginFirebase = LoginFirebase()
         loginFirebase.init(this, getString(R.string.web_client_id))
 
-        // Initialize views for step 1
-        initializeStepOneViews()
+        // Show page 1 initially
+        showPage1()
     }
 
-    private fun initializeStepOneViews() {
-        backArrow = findViewById(R.id.backArrow)
+    private fun showPage1() {
+        setContentView(R.layout.create_account_page_1)
+        currentPage = 1
+        
+        initializePage1Views()
+        setupPage1Listeners()
+        setupSpinners()
+    }
+
+    private fun showPage2() {
+        setContentView(R.layout.create_account_page_2)
+        currentPage = 2
+        
+        initializePage2Views()
+        setupPage2Listeners()
+    }
+
+    private fun initializePage1Views() {
         fullNameInput = findViewById(R.id.fullNameInput)
         dobInput = findViewById(R.id.dobInput)
         phoneInput = findViewById(R.id.phoneInput)
@@ -67,434 +86,220 @@ class CreateAccountActivity : AppCompatActivity() {
         ageSpinner = findViewById(R.id.ageSpinner)
         continueButton = findViewById(R.id.continueButton)
         calendarIcon = findViewById(R.id.calendarIcon)
+        backArrow = findViewById(R.id.backArrow)
         progressView = findViewById(R.id.progressView)
-
-        // Setup spinners
-        setupSpinners()
-
-        // Setup click listeners for step 1
-        setupStepOneListeners()
     }
 
-    private fun setupSpinners() {
-        // Setup country spinner
-        val countries = resources.getStringArray(R.array.countries_array)
-        val countryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, countries)
-        countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        countrySpinner.adapter = countryAdapter
-
-        // Setup age spinner
-        val ages = Array(100) { (it + 1).toString() }
-        val ageAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, ages)
-        ageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        ageSpinner.adapter = ageAdapter
-
-        // Default to 18
-        ageSpinner.setSelection(17)
+    private fun initializePage2Views() {
+        usernameInput = findViewById(R.id.usernameInput)
+        emailInput = findViewById(R.id.emailInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
+        rememberMeCheckbox = findViewById(R.id.rememberMeCheckbox)
+        signUpButton = findViewById(R.id.signUpButton)
+        eyeIconPassword = findViewById(R.id.eyeIconPassword)
+        eyeIconConfirm = findViewById(R.id.eyeIconConfirm)
+        progressView = findViewById(R.id.progressView)
+        backArrow = findViewById(R.id.backArrow)
     }
 
-    private fun setupStepOneListeners() {
-        backArrow.setOnClickListener {
-            onBackPressed()
+    private fun setupPage1Listeners() {
+        continueButton.setOnClickListener {
+            if (validatePage1()) {
+                saveUserDataFromPage1()
+                showPage2()
+            }
         }
 
-        calendarIcon.setOnClickListener {
-            showDatePickerDialog()
+        backArrow.setOnClickListener {
+            finish()
         }
 
         dobInput.setOnClickListener {
-            showDatePickerDialog()
+            showDatePicker()
         }
 
-        continueButton.setOnClickListener {
-            if (validateStepOne()) {
-                goToStepTwo()
+        calendarIcon.setOnClickListener {
+            showDatePicker()
+        }
+    }
+
+    private fun setupPage2Listeners() {
+        signUpButton.setOnClickListener {
+            if (validatePage2()) {
+                saveUserDataFromPage2()
+                createAccount()
+            }
+        }
+
+        backArrow.setOnClickListener {
+            showPage1()
+        }
+
+        eyeIconPassword.setOnClickListener {
+            togglePasswordVisibility(passwordInput, eyeIconPassword, isPasswordVisible) { visible ->
+                isPasswordVisible = visible
+            }
+        }
+
+        eyeIconConfirm.setOnClickListener {
+            togglePasswordVisibility(confirmPasswordInput, eyeIconConfirm, isConfirmPasswordVisible) { visible ->
+                isConfirmPasswordVisible = visible
             }
         }
     }
 
-    private fun showDatePickerDialog() {
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    private fun setupSpinners() {
+        // Country Spinner
+        val countries = resources.getStringArray(R.array.countries)
+        val countryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, countries)
+        countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        countrySpinner.adapter = countryAdapter
 
-        DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            calendar.set(Calendar.YEAR, selectedYear)
-            calendar.set(Calendar.MONTH, selectedMonth)
-            calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
-            dobInput.setText(dateFormat.format(calendar.time))
-        }, year, month, day).show()
+        // Age Spinner
+        val ages = (13..100).map { it.toString() }.toTypedArray()
+        val ageAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, ages)
+        ageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        ageSpinner.adapter = ageAdapter
     }
 
-    private fun validateStepOne(): Boolean {
-        if (fullNameInput.text.toString().trim().isEmpty()) {
-            fullNameInput.error = "Please enter your full name"
-            fullNameInput.requestFocus()
+    private fun validatePage1(): Boolean {
+        val fullName = fullNameInput.text.toString().trim()
+        val dob = dobInput.text.toString().trim()
+        val phone = phoneInput.text.toString().trim()
+
+        if (fullName.isEmpty()) {
+            fullNameInput.error = "Full name is required"
             return false
         }
 
-        if (dobInput.text.toString().trim().isEmpty()) {
-            dobInput.error = "Please enter your date of birth"
-            dobInput.requestFocus()
+        if (dob.isEmpty()) {
+            dobInput.error = "Date of birth is required"
             return false
         }
 
-        if (phoneInput.text.toString().trim().isEmpty()) {
-            phoneInput.error = "Please enter your phone number"
-            phoneInput.requestFocus()
+        if (phone.isEmpty()) {
+            phoneInput.error = "Phone number is required"
             return false
         }
 
         return true
     }
 
-    private fun goToStepTwo() {
-        // Save step 1 data to shared preferences
-        saveStepOneData()
-
-        // Switch to step 2
-        currentStep = 2
-        setContentView(R.layout.create_account_page_2)
-        initializeStepTwoViews()
-    }
-
-    private fun saveStepOneData() {
-        val sharedPrefs = getSharedPreferences("registration_data", MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putString("full_name", fullNameInput.text.toString().trim())
-            putString("dob", dobInput.text.toString().trim())
-            putString("phone", phoneInput.text.toString().trim())
-            putString("country", countrySpinner.selectedItem.toString())
-            putString("age", ageSpinner.selectedItem.toString())
-            apply()
-        }
-    }
-
-    private fun initializeStepTwoViews() {
-        backArrow = findViewById(R.id.backArrow)
-        usernameInput = findViewById(R.id.usernameInput)
-        emailInput = findViewById(R.id.emailInput)
-        passwordInput = findViewById(R.id.passwordInput)
-        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
-        eyeIconPassword = findViewById(R.id.eyeIconPassword)
-        eyeIconConfirm = findViewById(R.id.eyeIconConfirm)
-        rememberMeCheckbox = findViewById(R.id.rememberMeCheckbox)
-        signUpButton = findViewById(R.id.signUpButton)
-        googleButton = findViewById(R.id.googleButton)
-        progressView = findViewById(R.id.progressView)
-
-        // Setup click listeners for step 2
-        setupStepTwoListeners()
-    }
-
-    private fun setupStepTwoListeners() {
-        backArrow.setOnClickListener {
-            // Go back to step 1
-            currentStep = 1
-            setContentView(R.layout.create_account_page_1)
-            initializeStepOneViews()
-
-            // Restore saved values
-            restoreStepOneValues()
-        }
-
-        eyeIconPassword.setOnClickListener {
-            togglePasswordVisibility(passwordInput, eyeIconPassword, isPasswordVisible)
-            isPasswordVisible = !isPasswordVisible
-        }
-
-        eyeIconConfirm.setOnClickListener {
-            togglePasswordVisibility(confirmPasswordInput, eyeIconConfirm, isConfirmPasswordVisible)
-            isConfirmPasswordVisible = !isConfirmPasswordVisible
-        }
-
-        googleButton.setOnClickListener {
-            signInWithGoogle()
-        }
-
-        signUpButton.setOnClickListener {
-            if (validateStepTwo()) {
-                createAccount()
-            }
-        }
-    }
-
-    private fun togglePasswordVisibility(editText: EditText, iconView: ImageView, isVisible: Boolean) {
-        if (isVisible) {
-            // Hide password
-            editText.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD
-            iconView.setImageResource(R.drawable.ic_eye_open)
-        } else {
-            // Show password
-            editText.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            iconView.setImageResource(R.drawable.ic_eye_closed)
-        }
-        
-        // Move cursor to end
-        editText.setSelection(editText.text.length)
-    }
-
-    private fun restoreStepOneValues() {
-        val sharedPrefs = getSharedPreferences("registration_data", MODE_PRIVATE)
-        
-        fullNameInput.setText(sharedPrefs.getString("full_name", ""))
-        dobInput.setText(sharedPrefs.getString("dob", ""))
-        phoneInput.setText(sharedPrefs.getString("phone", ""))
-        
-        // Set country spinner
-        val country = sharedPrefs.getString("country", "")
-        val countries = resources.getStringArray(R.array.countries_array)
-        val countryIndex = countries.indexOf(country)
-        if (countryIndex >= 0) {
-            countrySpinner.setSelection(countryIndex)
-        }
-        
-        // Set age spinner
-        val age = sharedPrefs.getString("age", "18")
-        val ageIndex = age?.toIntOrNull()?.minus(1) ?: 17
-        if (ageIndex in 0..99) {
-            ageSpinner.setSelection(ageIndex)
-        }
-    }
-
-    private fun validateStepTwo(): Boolean {
+    private fun validatePage2(): Boolean {
         val username = usernameInput.text.toString().trim()
         val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString()
-        val confirmPassword = confirmPasswordInput.text.toString()
+        val password = passwordInput.text.toString().trim()
+        val confirmPassword = confirmPasswordInput.text.toString().trim()
 
         if (username.isEmpty()) {
-            usernameInput.error = "Please enter a username"
-            usernameInput.requestFocus()
+            usernameInput.error = "Username is required"
             return false
         }
 
         if (email.isEmpty()) {
-            emailInput.error = "Please enter your email"
-            emailInput.requestFocus()
+            emailInput.error = "Email is required"
             return false
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailInput.error = "Please enter a valid email"
-            emailInput.requestFocus()
             return false
         }
 
         if (password.isEmpty()) {
-            passwordInput.error = "Please enter a password"
-            passwordInput.requestFocus()
+            passwordInput.error = "Password is required"
             return false
         }
 
         if (password.length < 6) {
-            passwordInput.error = "Password should be at least 6 characters"
-            passwordInput.requestFocus()
+            passwordInput.error = "Password must be at least 6 characters"
             return false
         }
 
         if (confirmPassword.isEmpty()) {
             confirmPasswordInput.error = "Please confirm your password"
-            confirmPasswordInput.requestFocus()
             return false
         }
 
         if (password != confirmPassword) {
             confirmPasswordInput.error = "Passwords do not match"
-            confirmPasswordInput.requestFocus()
             return false
         }
 
         return true
     }
 
+    private fun saveUserDataFromPage1() {
+        userData["fullName"] = fullNameInput.text.toString().trim()
+        userData["dateOfBirth"] = dobInput.text.toString().trim()
+        userData["phoneNumber"] = phoneInput.text.toString().trim()
+        userData["country"] = countrySpinner.selectedItem.toString()
+        userData["age"] = ageSpinner.selectedItem.toString()
+    }
+
+    private fun saveUserDataFromPage2() {
+        userData["username"] = usernameInput.text.toString().trim()
+        userData["email"] = emailInput.text.toString().trim()
+        userData["password"] = passwordInput.text.toString().trim()
+    }
+
     private fun createAccount() {
         showProgress(true)
-        
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString()
-        val username = usernameInput.text.toString().trim()
-        
-        loginFirebase.createAccountWithEmail(email, password, username) { success, message ->
-            runOnUiThread {
-                if (success) {
-                    // Update user profile with additional information
-                    updateUserProfile()
-                } else {
-                    showProgress(false)
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                }
+
+        val email = userData["email"]!!
+        val password = userData["password"]!!
+        val fullName = userData["fullName"]!!
+
+        loginFirebase.createAccountWithEmail(email, password, fullName) { success, message ->
+            if (success) {
+                saveUserToDatabase()
+            } else {
+                showProgress(false)
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun updateUserProfile() {
-        val sharedPrefs = getSharedPreferences("registration_data", MODE_PRIVATE)
-        val user = FirebaseAuth.getInstance().currentUser ?: run {
-            showProgress(false)
-            Toast.makeText(this, "Error: User not found", Toast.LENGTH_LONG).show()
-            return
-        }
-        
-        val userId = user.uid
-        val username = usernameInput.text.toString().trim()
-        val fullName = sharedPrefs.getString("full_name", "")
-        val dob = sharedPrefs.getString("dob", "")
-        val phone = sharedPrefs.getString("phone", "")
-        val country = sharedPrefs.getString("country", "")
-        val age = sharedPrefs.getString("age", "")
-        
-        // Create user data map
-        val userData = hashMapOf(
-            "id" to userId,
-            "username" to username,
-            "fullName" to (fullName ?: ""),
-            "email" to (user.email ?: ""),
-            "photoUrl" to (user.photoUrl?.toString() ?: ""),
-            "dateOfBirth" to (dob ?: ""),
-            "phoneNumber" to (phone ?: ""),
-            "country" to (country ?: ""),
-            "age" to (age ?: ""),
+    private fun saveUserToDatabase() {
+        val currentUser = auth.currentUser ?: return
+
+        val userMap = hashMapOf(
+            "id" to currentUser.uid,
+            "username" to userData["username"]!!,
+            "fullName" to userData["fullName"]!!,
+            "email" to userData["email"]!!,
+            "photoUrl" to "",
+            "dateOfBirth" to userData["dateOfBirth"]!!,
+            "phoneNumber" to userData["phoneNumber"]!!,
+            "country" to userData["country"]!!,
+            "age" to userData["age"]!!,
             "createdAt" to System.currentTimeMillis(),
             "quizCount" to 0,
             "followersCount" to 0,
-            "followingCount" to 0
+            "followingCount" to 0,
+            "isAuthor" to true // Mark as author since they created an account
         )
-        
-        // Save to Firebase Database
-        FirebaseDatabase.getInstance().reference
-            .child("users")
-            .child(userId)
-            .setValue(userData)
-            .addOnCompleteListener { task ->
+
+        database.reference.child("users").child(currentUser.uid)
+            .setValue(userMap)
+            .addOnSuccessListener {
                 showProgress(false)
-                
-                if (task.isSuccessful) {
-                    // If Remember Me is checked, save login state
-                    if (rememberMeCheckbox.isChecked) {
-                        val loginPrefs = getSharedPreferences("quizzo_prefs", MODE_PRIVATE)
-                        with(loginPrefs.edit()) {
-                            putBoolean("is_logged_in", true)
-                            putString("user_email", user.email)
-                            apply()
-                        }
-                    }
-                    
-                    // Show success screen
-                    showSuccessScreen()
-                } else {
-                    Toast.makeText(this, "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
+                showSuccessPage()
+            }
+            .addOnFailureListener { e ->
+                showProgress(false)
+                Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun showSuccessScreen() {
+    private fun showSuccessPage() {
         setContentView(R.layout.create_account_successful)
         
-        // Automatically navigate to main activity after 2 seconds
+        // Auto-navigate to MainActivity after 2 seconds
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+            navigateToMainActivity()
         }, 2000)
-    }
-
-    private fun signInWithGoogle() {
-        showProgress(true)
-        loginFirebase.signInWithGoogle(this)
-    }
-
-    private fun showProgress(show: Boolean) {
-        progressView.visibility = if (show) View.VISIBLE else View.GONE
-        
-        if (currentStep == 1) {
-            continueButton.isEnabled = !show
-        } else {
-            signUpButton.isEnabled = !show
-            googleButton.isEnabled = !show
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        
-        if (requestCode == LoginFirebase.RC_SIGN_IN) {
-            showProgress(false)
-            
-            loginFirebase.handleGoogleSignInResult(data) { success, message ->
-                if (success) {
-                    // Google Sign-In successful, check if user exists
-                    val user = FirebaseAuth.getInstance().currentUser
-                    if (user != null) {
-                        // Check if this is a new user
-                        FirebaseDatabase.getInstance().reference
-                            .child("users")
-                            .child(user.uid)
-                            .get()
-                            .addOnSuccessListener { snapshot ->
-                                if (snapshot.exists()) {
-                                    // Existing user, go to main activity
-                                    navigateToMainActivity()
-                                } else {
-                                    // New user, add profile data
-                                    updateGoogleUserProfile(user.uid)
-                                }
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(this, "Error checking user profile", Toast.LENGTH_LONG).show()
-                            }
-                    }
-                } else {
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun updateGoogleUserProfile(userId: String) {
-        // Get step 1 data if available
-        val sharedPrefs = getSharedPreferences("registration_data", MODE_PRIVATE)
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        
-        val userData = hashMapOf(
-            "id" to userId,
-            "username" to (user.displayName ?: "User${System.currentTimeMillis()}"),
-            "fullName" to (sharedPrefs.getString("full_name", user.displayName) ?: ""),
-            "email" to (user.email ?: ""),
-            "photoUrl" to (user.photoUrl?.toString() ?: ""),
-            "dateOfBirth" to (sharedPrefs.getString("dob", "") ?: ""),
-            "phoneNumber" to (sharedPrefs.getString("phone", "") ?: ""),
-            "country" to (sharedPrefs.getString("country", "") ?: ""),
-            "age" to (sharedPrefs.getString("age", "") ?: ""),
-            "createdAt" to System.currentTimeMillis(),
-            "quizCount" to 0,
-            "followersCount" to 0,
-            "followingCount" to 0
-        )
-        
-        // Save to Firebase Database
-        FirebaseDatabase.getInstance().reference
-            .child("users")
-            .child(userId)
-            .setValue(userData)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Save login state
-                    val loginPrefs = getSharedPreferences("quizzo_prefs", MODE_PRIVATE)
-                    with(loginPrefs.edit()) {
-                        putBoolean("is_logged_in", true)
-                        putString("user_email", user.email)
-                        apply()
-                    }
-                    
-                    // Show success screen
-                    showSuccessScreen()
-                } else {
-                    Toast.makeText(this, "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                    navigateToMainActivity()
-                }
-            }
     }
 
     private fun navigateToMainActivity() {
@@ -502,5 +307,54 @@ class CreateAccountActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(year, month, dayOfMonth)
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                dobInput.setText(dateFormat.format(selectedDate.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
+    }
+
+    private fun togglePasswordVisibility(editText: EditText, imageView: ImageView, isVisible: Boolean, callback: (Boolean) -> Unit) {
+        val newVisibility = !isVisible
+        
+        if (newVisibility) {
+            editText.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            imageView.setImageResource(R.drawable.ic_eye_closed)
+        } else {
+            editText.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            imageView.setImageResource(R.drawable.ic_eye_open)
+        }
+        
+        editText.setSelection(editText.text.length)
+        callback(newVisibility)
+    }
+
+    private fun showProgress(show: Boolean) {
+        progressView.visibility = if (show) View.VISIBLE else View.GONE
+        
+        when (currentPage) {
+            1 -> continueButton.isEnabled = !show
+            2 -> signUpButton.isEnabled = !show
+        }
+    }
+
+    override fun onBackPressed() {
+        if (currentPage == 2) {
+            showPage1()
+        } else {
+            super.onBackPressed()
+        }
     }
 }

@@ -193,28 +193,14 @@
         android:id="@+id/signUpButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:background="@drawable/rounded_button"
         android:padding="12dp"
         android:text="Sign Up"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@id/googleButton" />
-
-    <!-- Google Sign In Button -->
-    <Button
-        android:id="@+id/googleButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button"
-        android:backgroundTint="#FFFFFF"
-        android:padding="12dp"
-        android:text="Sign Up with Google"
-        android:textAllCaps="false"
-        android:textColor="#333333"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Progress View - This was missing -->
+    <!-- Progress View -->
     <FrameLayout
         android:id="@+id/progressView"
         android:layout_width="match_parent"

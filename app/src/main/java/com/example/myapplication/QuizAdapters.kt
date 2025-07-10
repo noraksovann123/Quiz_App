@@ -7,60 +7,60 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import java.text.SimpleDateFormat
+import java.util.*
 
-class QuizAdapter(
-    private val quizzes: List<Quiz>,
-    private val onQuizClick: (Quiz) -> Unit
-) : RecyclerView.Adapter<QuizAdapter.QuizViewHolder>() {
+class QuizAdapters(
+    private var quizzes: List<Quiz>,
+    private val onClick: (Quiz) -> Unit
+) : RecyclerView.Adapter<QuizAdapters.QuizViewHolder>() {
+
+    class QuizViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val title: TextView = itemView.findViewById(R.id.quizTitle)
+        val description: TextView = itemView.findViewById(R.id.quizDescription)
+        val image: ImageView = itemView.findViewById(R.id.quizImage)
+        val authorName: TextView = itemView.findViewById(R.id.authorName)
+        val authorImage: ImageView = itemView.findViewById(R.id.authorImage)
+        val questionCount: TextView = itemView.findViewById(R.id.questionCount)
+        val playCount: TextView = itemView.findViewById(R.id.playCount)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuizViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_quiz, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quiz, parent, false)
         return QuizViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: QuizViewHolder, position: Int) {
-        holder.bind(quizzes[position])
-    }
-
-    override fun getItemCount(): Int = quizzes.size
-
-    inner class QuizViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val quizImage: ImageView = itemView.findViewById(R.id.quizImage)
-        private val quizTitle: TextView = itemView.findViewById(R.id.quizTitle)
-        private val authorName: TextView = itemView.findViewById(R.id.authorName)
-        private val questionCount: TextView = itemView.findViewById(R.id.questionCount)
-        private val playCount: TextView = itemView.findViewById(R.id.playCount)
-
-        fun bind(quiz: Quiz) {
-            // Set text values
-            quizTitle.text = quiz.title
-            authorName.text = quiz.authorName
-            questionCount.text = "${quiz.questionCount} questions"
+        val quiz = quizzes[position]
+        
+        holder.title.text = quiz.title
+        holder.description.text = quiz.description
+        holder.authorName.text = quiz.authorName
+        holder.questionCount.text = "${quiz.questionCount} questions"
+        holder.playCount.text = "${quiz.playCount} plays"
+        
+        // Load quiz cover image
+        Glide.with(holder.itemView.context)
+            .load(quiz.imageUrl)
+            .placeholder(R.drawable.placeholder_quiz)
+            .into(holder.image)
+        
+        // Load author image
+        Glide.with(holder.itemView.context)
+            .load(quiz.authorImageUrl)
+            .placeholder(R.drawable.default_profile_image)
+            .circleCrop()
+            .into(holder.authorImage)
             
-            // Format play count with K suffix if > 1000
-            playCount.text = when {
-                quiz.playCount >= 1000 -> String.format("%.1fK", quiz.playCount / 1000.0)
-                else -> "${quiz.playCount}"
-            } + " plays"
-
-            // Load quiz image with Glide
-            if (quiz.imageUrl.isNotEmpty()) {
-                Glide.with(itemView.context)
-                    .load(quiz.imageUrl)
-                    .placeholder(R.drawable.quiz_placeholder)
-                    .error(R.drawable.quiz_placeholder)
-                    .centerCrop()
-                    .into(quizImage)
-            } else {
-                // Set default image if no image URL
-                quizImage.setImageResource(R.drawable.quiz_placeholder)
-            }
-
-            // Set click listener
-            itemView.setOnClickListener {
-                onQuizClick(quiz)
-            }
+        holder.itemView.setOnClickListener {
+            onClick(quiz)
         }
+    }
+    
+    override fun getItemCount(): Int = quizzes.size
+    
+    fun updateData(newQuizzes: List<Quiz>) {
+        quizzes = newQuizzes
+        notifyDataSetChanged()
     }
 }

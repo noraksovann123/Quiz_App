@@ -2,8 +2,6 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -63,12 +61,13 @@ class WelcomeActivity : AppCompatActivity() {
     }
     
     private fun setupListeners() {
-        // Next button on each welcome screen
+        // Next button on welcome page 1
         findViewById<ImageView>(R.id.nextButton1).setOnClickListener {
             viewFlipper.showNext()
             updateDots(1)
         }
         
+        // Next button on welcome page 2
         findViewById<ImageView>(R.id.nextButton2).setOnClickListener {
             viewFlipper.showNext()
             updateDots(2)
@@ -76,14 +75,16 @@ class WelcomeActivity : AppCompatActivity() {
         
         // Get started button
         getStartedButton.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
+            val intent = Intent(this, CreateAccountActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         
         // Login button
         loginButton.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         
         // Skip button
@@ -93,6 +94,7 @@ class WelcomeActivity : AppCompatActivity() {
             intent.putExtra("isGuest", true)
             startActivity(intent)
             finish()
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
     
@@ -109,5 +111,6 @@ class WelcomeActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
     }
 }

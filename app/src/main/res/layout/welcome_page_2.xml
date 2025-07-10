@@ -27,39 +27,23 @@
         android:textStyle="bold"
         android:textSize="30sp"
         android:lineSpacingExtra="4dp"
-        android:fontFamily="@font/poppinssemibold" />
+        android:fontFamily="sans-serif-medium" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <Button
-        android:id="@+id/getStartedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#B19CD9"
-        android:text="GET STARTED"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textAllCaps="true" />
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#EDE7F6"
-        android:text="I ALREADY HAVE AN ACCOUNT"
-        android:textColor="#7E57C2"
-        android:textStyle="bold"
-        android:textAllCaps="true" />
+    <!-- Next Button -->
+    <ImageView
+        android:id="@+id/nextButton2"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/ic_arrow_forward"
+        android:background="@drawable/circle_button"
+        android:padding="16dp"
+        android:clickable="true"
+        android:focusable="true" />
 
 </LinearLayout>

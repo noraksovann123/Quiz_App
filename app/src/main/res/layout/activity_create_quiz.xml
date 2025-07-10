@@ -1,262 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#FAFAFA">
 
-    <!-- Toolbar -->
-    <RelativeLayout
+    <!-- Top App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp">
+        android:background="#FFFFFF"
+        app:elevation="0dp">
 
-        <ImageButton
-            android:id="@+id/closeButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            android:contentDescription="Close" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Add Question"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
-
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp">
 
-            <!-- Question Text -->
-            <TextView
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Question"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/questionInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter your question"
-                android:background="@drawable/rounded_edit_text_bg"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:textSize="16sp"
-                android:minLines="2"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"/>
-
-            <!-- Question Image -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Add Image (Optional)"
-                    android:textColor="#000000"
-                    android:textSize="16sp"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                android:layout_height="match_parent">
 
                 <ImageButton
-                    android:id="@+id/addImageButton"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_add_image"
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="4dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:tint="#6870EC"
-                    android:contentDescription="Add Image"/>
-            </LinearLayout>
+                    android:contentDescription="Back"
+                    android:src="@drawable/ic_back"
+                    android:tint="#333333" />
 
-            <ImageView
-                android:id="@+id/questionImageView"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginTop="8dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:background="@drawable/rounded_border"
-                android:contentDescription="Question Image"/>
-
-            <!-- Options -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Options"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Add at least 2 options and mark the correct answer"
-                android:textColor="#808080"
-                android:textSize="14sp"/>
-
-            <!-- Option 1 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical">
-
-                <RadioButton
-                    android:id="@+id/option1Radio"
+                <TextView
+                    android:id="@+id/toolbarTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="Correct Answer Option 1"/>
+                    android:layout_centerInParent="true"
+                    android:text="Create Quiz"
+                    android:textColor="#333333"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/option1Input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Option 1"
-                    android:background="@drawable/rounded_edit_text_bg"
-                    android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Option 2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
-
-                <RadioButton
-                    android:id="@+id/option2Radio"
+                <Button
+                    android:id="@+id/btnSave"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="Correct Answer Option 2"/>
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:text="Save"
+                    android:textColor="#7E57C2" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
 
-                <EditText
-                    android:id="@+id/option2Input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Option 2"
-                    android:background="@drawable/rounded_edit_text_bg"
-                    android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:tabIndicatorColor="#7E57C2"
+            app:tabSelectedTextColor="#7E57C2"
+            app:tabTextColor="#757575" />
 
-            <!-- Option 3 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
+    </com.google.android.material.appbar.AppBarLayout>
 
-                <RadioButton
-                    android:id="@+id/option3Radio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="Correct Answer Option 3"/>
-
-                <EditText
-                    android:id="@+id/option3Input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Option 3 (Optional)"
-                    android:background="@drawable/rounded_edit_text_bg"
-                    android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Option 4 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
-
-                <RadioButton
-                    android:id="@+id/option4Radio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="Correct Answer Option 4"/>
-
-                <EditText
-                    android:id="@+id/option4Input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Option 4 (Optional)"
-                    android:background="@drawable/rounded_edit_text_bg"
-                    android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- Button Bar -->
-    <LinearLayout
+    <!-- Main Content -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- FAB for adding questions -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddQuestion"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Add Question"
+        android:src="@drawable/ic_add"
+        android:tint="#FFFFFF"
+        app:backgroundTint="#7E57C2" />
 
-        <Button
-            android:id="@+id/addQuestionButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Add Question"
-            android:textAllCaps="false"
-            android:backgroundTint="#E8EFFF"
-            android:textColor="#6870EC"
-            android:layout_marginEnd="8dp" />
+    <!-- Progress Overlay -->
+    <FrameLayout
+        android:id="@+id/progressOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
 
-        <Button
-            android:id="@+id/doneButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Done"
-            android:textAllCaps="false"
-            android:backgroundTint="#6870EC"
-            android:textColor="#FFFFFF" />
-    </LinearLayout>
-</LinearLayout>
+        <ProgressBar
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

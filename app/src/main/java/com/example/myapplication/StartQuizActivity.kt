@@ -154,37 +154,25 @@ class StartQuizActivity : AppCompatActivity() {
         // Fetch quiz data from Firebase
         database.child("quizzes").child(quizId!!).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // Hide loading state
-                
-                // Parse quiz data
-                val title = snapshot.child("title").getValue(String::class.java) ?: ""
-                val description = snapshot.child("description").getValue(String::class.java) ?: ""
-                val imageUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: ""
-                val authorId = snapshot.child("authorId").getValue(String::class.java) ?: ""
-                val authorName = snapshot.child("authorName").getValue(String::class.java) ?: ""
-                val authorImageUrl = snapshot.child("authorImageUrl").getValue(String::class.java) ?: ""
-                val questionCount = snapshot.child("questionCount").getValue(Int::class.java) ?: 0
-                val playCount = snapshot.child("playCount").getValue(Int::class.java) ?: 0
-                val favoriteCount = snapshot.child("favoriteCount").getValue(Int::class.java) ?: 0
-                val shareCount = snapshot.child("shareCount").getValue(Int::class.java) ?: 0
-                val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0
-                val category = snapshot.child("category").getValue(String::class.java) ?: ""
-                
-                quiz = Quiz(
-                    quizId!!, title, description, imageUrl,
-                    authorId, authorName, authorImageUrl,
-                    questionCount, playCount, favoriteCount, shareCount,
-                    false, false, timestamp, category
-                )
-                
-                displayQuizData()
-                
-                // Also fetch author details and user specific data (following, favorites)
-                checkUserData()
+                // Get the quiz from snapshot
+                val quiz = snapshot.getValue(Quiz::class.java)
+                if (quiz != null) {
+                    // Set the ID which might not be in the data itself
+                    quiz.id = quizId!!
+                    this@StartQuizActivity.quiz = quiz
+                    
+                    // Display the quiz data
+                    displayQuizData()
+                    
+                    // Check user-specific data (favorites, following)
+                    checkUserData()
+                } else {
+                    Toast.makeText(this@StartQuizActivity, "Failed to load quiz data", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
             
             override fun onCancelled(error: DatabaseError) {
-                // Hide loading state
                 Log.e(TAG, "Error loading quiz: ${error.message}")
                 Toast.makeText(this@StartQuizActivity, "Failed to load quiz", Toast.LENGTH_SHORT).show()
                 finish()
@@ -250,18 +238,25 @@ class StartQuizActivity : AppCompatActivity() {
             questionCountText.text = quiz.questionCount.toString()
             playedCountText.text = formatNumber(quiz.playCount)
             favoritesCountText.text = formatNumber(quiz.favoriteCount)
-            sharedCountText.text = formatNumber(quiz.shareCount)
+            
+            // For shareCount, use a value from the quiz model if it exists
+            // or default to a hardcoded value for now
+            val shareCount = 0
+            sharedCountText.text = formatNumber(shareCount)
             
             // Set author info
             authorNameText.text = quiz.authorName
-            authorUsernameText.text = "@${quiz.authorId.take(10).lowercase().replace(" ", "_")}"
+            // Create a simple username from author ID if needed
+            val username = "@${quiz.authorId.take(10).lowercase().replace(" ", "_")}"
+            authorUsernameText.text = username
             
-            // Load author image
-            if (quiz.authorImageUrl.isNotEmpty()) {
+            // Load author image - check if we have authorImageUrl in your model
+            val authorImageUrl = "" // Default empty
+            if (authorImageUrl.isNotEmpty()) {
                 Glide.with(this)
-                    .load(quiz.authorImageUrl)
-                    .placeholder(R.drawable.author_placeholder)
-                    .error(R.drawable.author_placeholder)
+                    .load(authorImageUrl)
+                    .placeholder(R.drawable.profile_placeholder)
+                    .error(R.drawable.profile_placeholder)
                     .circleCrop()
                     .into(authorImage)
             }
@@ -357,7 +352,7 @@ class StartQuizActivity : AppCompatActivity() {
         if (isFollowing) {
             followButton.text = "Following"
             followButton.setBackgroundResource(R.drawable.button_following)
-            followButton.setTextColor(resources.getColor(R.color.primary))
+            followButton.setTextColor(resources.getColor(android.R.color.holo_purple))
         } else {
             followButton.text = "Follow"
             followButton.setBackgroundResource(R.drawable.button_follow)

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class HomeFragment : Fragment() {
-    private val TAG = "HomeFragment"
+    private val tag = "HomeFragment"
     
     // Firebase database
     private lateinit var database: DatabaseReference
@@ -88,12 +87,12 @@ class HomeFragment : Fragment() {
         authorsSection = view.findViewById(R.id.authorsSection)
         
         // FAB
-        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+        view.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
             // Check if user is logged in
             if (FirebaseAuth.getInstance().currentUser != null) {
                 startActivity(Intent(requireContext(), CreateQuizActivity::class.java))
             } else {
-                Toast.makeText(context, "Please log in to create a quiz", Toast.LENGTH_SHORT).show()
+                Toast.show(requireContext(), "Please log in to create a quiz")
                 // You can navigate to login/register screen here
             }
         }
@@ -102,7 +101,7 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerViews() {
         // Discover RecyclerView
         discoverRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        discoverAdapter = QuizAdapter(discoverQuizzes) { quiz ->
+        discoverAdapter = QuizAdapter(discoverQuizzes) { quiz: Quiz ->
             navigateToQuizDetails(quiz)
         }
         discoverRecyclerView.adapter = discoverAdapter
@@ -116,14 +115,14 @@ class HomeFragment : Fragment() {
         
         // Trending RecyclerView
         trendingRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        trendingAdapter = QuizAdapter(trendingQuizzes) { quiz ->
+        trendingAdapter = QuizAdapter(trendingQuizzes) { quiz: Quiz ->
             navigateToQuizDetails(quiz)
         }
         trendingRecyclerView.adapter = trendingAdapter
         
         // Top Picks RecyclerView
         topPicksRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        topPicksAdapter = QuizAdapter(topPickQuizzes) { quiz ->
+        topPicksAdapter = QuizAdapter(topPickQuizzes) { quiz: Quiz ->
             navigateToQuizDetails(quiz)
         }
         topPicksRecyclerView.adapter = topPicksAdapter
@@ -138,7 +137,7 @@ class HomeFragment : Fragment() {
         // Notifications button
         view.findViewById<ImageView>(R.id.notificationsButton).setOnClickListener {
             // Handle notifications click - future feature
-            Toast.makeText(context, "Notifications coming soon!", Toast.LENGTH_SHORT).show()
+            Toast.show(requireContext(), "Notifications coming soon!")
         }
         
         // View all buttons
@@ -160,22 +159,41 @@ class HomeFragment : Fragment() {
         
         // Find friends button
         view.findViewById<View>(R.id.findFriendsButton).setOnClickListener {
-            Toast.makeText(context, "Find friends feature coming soon!", Toast.LENGTH_SHORT).show()
+            Toast.show(requireContext(), "Find friends feature coming soon!")
         }
     }
     
     private fun loadData() {
-        // Load discover quizzes
-        loadQuizzes("featured/discover", discoverQuizzes, discoverAdapter, discoverRecyclerView, emptyDiscover)
+        // Load discover quizzes - now directly from quizzes node instead of featured/discover
+        loadQuizzesFromMainNode(discoverQuizzes, discoverAdapter, discoverRecyclerView, emptyDiscover)
         
-        // Load trending quizzes
-        loadQuizzes("featured/trending", trendingQuizzes, trendingAdapter, trendingRecyclerView, emptyTrending)
+        // Check if featured paths exist, otherwise use main quizzes node
+        checkPathExists("featured/trending") { exists ->
+            if (exists) {
+                loadQuizzes("featured/trending", trendingQuizzes, trendingAdapter, trendingRecyclerView, emptyTrending)
+            } else {
+                // Fallback to main quizzes node sorted by playCount
+                loadQuizzesFromMainNodeSorted(trendingQuizzes, trendingAdapter, trendingRecyclerView, emptyTrending, "playCount")
+            }
+        }
         
-        // Load top picks
-        loadQuizzes("featured/topPicks", topPickQuizzes, topPicksAdapter, topPicksRecyclerView, emptyTopPicks)
+        // Top picks is an alternative view of the quizzes
+        loadQuizzesFromMainNodeSorted(topPickQuizzes, topPicksAdapter, topPicksRecyclerView, emptyTopPicks, "favoriteCount")
         
         // Load authors - only shows authors who have created quizzes
         loadAuthors()
+    }
+    
+    private fun checkPathExists(path: String, callback: (Boolean) -> Unit) {
+        database.child(path).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                callback(snapshot.exists() && snapshot.hasChildren())
+            }
+            
+            override fun onCancelled(error: DatabaseError) {
+                callback(false)
+            }
+        })
     }
     
     private fun loadQuizzes(
@@ -207,11 +225,125 @@ class HomeFragment : Fragment() {
             }
             
             override fun onCancelled(error: DatabaseError) {
-                Log.e(TAG, "Failed to load quizzes: ${error.message}")
+                Log.e(tag, "Failed to load quizzes: ${error.message}")
                 recyclerView.visibility = View.GONE
                 emptyView.visibility = View.VISIBLE
             }
         })
+    }
+    
+    private fun loadQuizzesFromMainNode(
+        quizList: MutableList<Quiz>,
+        adapter: QuizAdapter,
+        recyclerView: RecyclerView,
+        emptyView: TextView
+    ) {
+        database.child("quizzes").orderByChild("timestamp").limitToLast(10)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    quizList.clear()
+                    
+                    if (!snapshot.exists() || !snapshot.hasChildren()) {
+                        recyclerView.visibility = View.GONE
+                        emptyView.visibility = View.VISIBLE
+                        return
+                    }
+                    
+                    recyclerView.visibility = View.VISIBLE
+                    emptyView.visibility = View.GONE
+                    
+                    for (quizSnapshot in snapshot.children) {
+                        val quiz = convertSnapshotToQuiz(quizSnapshot)
+                        quizList.add(quiz)
+                    }
+                    
+                    // Sort by newest first
+                    quizList.sortByDescending { it.timestamp }
+                    adapter.updateData(quizList)
+                }
+                
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e(tag, "Failed to load quizzes: ${error.message}")
+                    recyclerView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                }
+            })
+    }
+    
+    private fun loadQuizzesFromMainNodeSorted(
+        quizList: MutableList<Quiz>,
+        adapter: QuizAdapter,
+        recyclerView: RecyclerView,
+        emptyView: TextView,
+        sortField: String
+    ) {
+        database.child("quizzes").orderByChild(sortField).limitToLast(10)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    quizList.clear()
+                    
+                    if (!snapshot.exists() || !snapshot.hasChildren()) {
+                        recyclerView.visibility = View.GONE
+                        emptyView.visibility = View.VISIBLE
+                        return
+                    }
+                    
+                    recyclerView.visibility = View.VISIBLE
+                    emptyView.visibility = View.GONE
+                    
+                    for (quizSnapshot in snapshot.children) {
+                        val quiz = convertSnapshotToQuiz(quizSnapshot)
+                        quizList.add(quiz)
+                    }
+                    
+                    // Sort based on the field (descending)
+                    when (sortField) {
+                        "playCount" -> quizList.sortByDescending { it.playCount }
+                        "favoriteCount" -> quizList.sortByDescending { it.favoriteCount }
+                        else -> quizList.sortByDescending { it.timestamp }
+                    }
+                    
+                    adapter.updateData(quizList)
+                }
+                
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e(tag, "Failed to load quizzes: ${error.message}")
+                    recyclerView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                }
+            })
+    }
+    
+    private fun convertSnapshotToQuiz(snapshot: DataSnapshot): Quiz {
+        val id = snapshot.key ?: ""
+        val title = snapshot.child("title").getValue(String::class.java) ?: ""
+        val description = snapshot.child("description").getValue(String::class.java) ?: ""
+        val imageUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: ""
+        val authorId = snapshot.child("authorId").getValue(String::class.java) ?: ""
+        val authorName = snapshot.child("authorName").getValue(String::class.java) ?: ""
+        val authorImageUrl = snapshot.child("authorImageUrl").getValue(String::class.java) ?: ""
+        val questionCount = snapshot.child("questionCount").getValue(Long::class.java)?.toInt() ?: 0
+        val playCount = snapshot.child("playCount").getValue(Long::class.java)?.toInt() ?: 0
+        val favoriteCount = snapshot.child("favoriteCount").getValue(Long::class.java)?.toInt() ?: 0
+        val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+        val category = snapshot.child("category").getValue(String::class.java) ?: ""
+        val collection = snapshot.child("collection").getValue(String::class.java) ?: ""
+        
+        return Quiz(
+            id = id,
+            title = title, 
+            description = description, 
+            imageUrl = imageUrl,
+            authorId = authorId, 
+            authorName = authorName, 
+            authorImageUrl = authorImageUrl,
+            timestamp = timestamp,
+            category = category,
+            collection = collection,
+            questionCount = questionCount,
+            playCount = playCount,
+            favoriteCount = favoriteCount
+        )
     }
     
     private fun fetchQuizDetails(
@@ -227,43 +359,26 @@ class HomeFragment : Fragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     loadedCount++
                     
-                    val title = snapshot.child("title").getValue(String::class.java) ?: ""
-                    val description = snapshot.child("description").getValue(String::class.java) ?: ""
-                    val imageUrl = snapshot.child("imageUrl").getValue(String::class.java) ?: ""
-                    val authorId = snapshot.child("authorId").getValue(String::class.java) ?: ""
-                    val authorName = snapshot.child("authorName").getValue(String::class.java) ?: ""
-                    val authorImageUrl = snapshot.child("authorImageUrl").getValue(String::class.java) ?: ""
-                    val questionCount = snapshot.child("questionCount").getValue(Int::class.java) ?: 0
-                    val playCount = snapshot.child("playCount").getValue(Int::class.java) ?: 0
-                    val favoriteCount = snapshot.child("favoriteCount").getValue(Int::class.java) ?: 0
-                    val shareCount = snapshot.child("shareCount").getValue(Int::class.java) ?: 0
-                    val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0
-                    val category = snapshot.child("category").getValue(String::class.java) ?: ""
-                    
-                    val quiz = Quiz(
-                        quizId, title, description, imageUrl,
-                        authorId, authorName, authorImageUrl,
-                        questionCount, playCount, favoriteCount, shareCount,
-                        false, false, timestamp, category
-                    )
-                    
-                    quizList.add(quiz)
+                    if (snapshot.exists()) {
+                        val quiz = convertSnapshotToQuiz(snapshot)
+                        quizList.add(quiz)
+                    }
                     
                     // Update adapter when all quizzes are loaded
                     if (loadedCount >= quizIds.size) {
                         // Sort by timestamp (newest first)
                         quizList.sortByDescending { it.timestamp }
-                        adapter.notifyDataSetChanged()
+                        adapter.updateData(quizList)
                     }
                 }
                 
                 override fun onCancelled(error: DatabaseError) {
                     loadedCount++
-                    Log.e(TAG, "Failed to load quiz details: ${error.message}")
+                    Log.e(tag, "Failed to load quiz details: ${error.message}")
                     
                     // Update adapter when all attempts are complete
                     if (loadedCount >= quizIds.size) {
-                        adapter.notifyDataSetChanged()
+                        adapter.updateData(quizList)
                     }
                 }
             })
@@ -277,12 +392,14 @@ class HomeFragment : Fragment() {
                     authors.clear()
                     
                     for (authorSnapshot in snapshot.children) {
-                        val quizCount = authorSnapshot.child("quizCount").getValue(Int::class.java) ?: 0
+                        val quizCount = authorSnapshot.child("quizCount").getValue(Long::class.java)?.toInt() ?: 0
                         
                         // Only include authors who have created quizzes
                         if (quizCount > 0) {
                             val authorId = authorSnapshot.key ?: continue
-                            val name = authorSnapshot.child("name").getValue(String::class.java) ?: "Unknown"
+                            val name = authorSnapshot.child("fullName").getValue(String::class.java) 
+                                ?: authorSnapshot.child("name").getValue(String::class.java) 
+                                ?: "Unknown"
                             val photoUrl = authorSnapshot.child("photoUrl").getValue(String::class.java) ?: ""
                             
                             authors.add(Author(authorId, name, photoUrl, quizCount))
@@ -302,7 +419,7 @@ class HomeFragment : Fragment() {
                 }
                 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e(TAG, "Failed to load authors: ${error.message}")
+                    Log.e(tag, "Failed to load authors: ${error.message}")
                     authorsSection.visibility = View.GONE
                 }
             })
@@ -316,24 +433,16 @@ class HomeFragment : Fragment() {
     
     private fun navigateToAuthorProfile(authorId: String) {
         // This would be implemented in a real app
-        Toast.makeText(context, "Author profile coming soon!", Toast.LENGTH_SHORT).show()
+        Toast.show(requireContext(), "Author profile coming soon!")
     }
     
     private fun navigateToCategory(category: String) {
         // This would be implemented in a real app
-        Toast.makeText(context, "View all $category coming soon!", Toast.LENGTH_SHORT).show()
+        Toast.show(requireContext(), "View all $category coming soon!")
     }
     
     private fun navigateToAllAuthors() {
         // This would be implemented in a real app
-        Toast.makeText(context, "View all authors coming soon!", Toast.LENGTH_SHORT).show()
+        Toast.show(requireContext(), "View all authors coming soon!")
     }
-    
-    // Data class for authors
-    data class Author(
-        val id: String,
-        val name: String,
-        val photoUrl: String,
-        val quizCount: Int
-    )
 }

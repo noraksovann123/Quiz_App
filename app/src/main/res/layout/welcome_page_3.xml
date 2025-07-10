@@ -20,46 +20,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="38dp"
-        android:text="Play and take quiz challenges together with your friends"
+        android:text="Ready to challenge your mind and have fun?"
         android:textAlignment="center"
         android:gravity="center"
         android:textColor="#000000"
         android:textStyle="bold"
         android:textSize="30sp"
         android:lineSpacingExtra="4dp"
-        android:fontFamily="@font/poppinssemibold" />
+        android:fontFamily="sans-serif-medium" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <Button
-        android:id="@+id/getStartedButton"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#B19CD9"
-        android:text="GET STARTED"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textAllCaps="true" />
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#EDE7F6"
-        android:text="I ALREADY HAVE AN ACCOUNT"
+        android:layout_marginBottom="24dp"
+        android:text="Let's get started!"
         android:textColor="#7E57C2"
-        android:textStyle="bold"
-        android:textAllCaps="true" />
+        android:textSize="18sp"
+        android:textStyle="italic" />
 
 </LinearLayout>
